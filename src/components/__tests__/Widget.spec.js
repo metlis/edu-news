@@ -81,12 +81,13 @@ describe('Widget.vue', () => {
   });
 
   test('A list of articles is rendered', () => {
+    const array = [{ title: 1 }, { title: 2 }, { title: 3 }];
     const wrapper = shallowMount(Widget, {
       localVue,
       data() {
         return {
           news: {
-            'Все новости': { articles: [{}, {}, {}] },
+            'Все новости': { articles: array },
           },
         };
       },
@@ -95,8 +96,8 @@ describe('Widget.vue', () => {
   });
 
   test('Pagination is shown if the number of articles is more than 5', () => {
-    const array = Array(6);
-    array.fill({});
+    const array = [{ title: 1 }, { title: 2 }, { title: 3 }, { title: 4 }, { title: 5 },
+      { title: 6 }];
     const wrapper = shallowMount(Widget, {
       localVue,
       data() {
@@ -111,7 +112,7 @@ describe('Widget.vue', () => {
   });
 
   test('Pagination is not shown if the number of articles is less than 5', () => {
-    const array = Array(3);
+    const array = [{ title: 1 }, { title: 2 }, { title: 3 }];
     array.fill({});
     const wrapper = shallowMount(Widget, {
       localVue,
@@ -124,5 +125,29 @@ describe('Widget.vue', () => {
       },
     });
     expect(wrapper.find(VPagination).exists()).toBeFalsy();
+  });
+
+  test('Articles with duplicate titles are not shown', async () => {
+    const wrapper = shallowMount(Widget, {
+      localVue,
+      data() {
+        return {
+          news: {
+            'Все новости': { articles: [{ title: 'test1', publishedAt: '' }] },
+            'Дошкольное образование': {
+              articles: [
+                { title: 'test1', publishedAt: '' },
+                { title: 'test1', publishedAt: '' },
+                { title: 'test2', publishedAt: '' },
+              ],
+            },
+          },
+        };
+      },
+    });
+    const secondList = wrapper.findAll(VList).at(1);
+    wrapper.vm.filterCatNews('Дошкольное образование');
+    await wrapper.vm.$nextTick();
+    expect(secondList.findAll(VListItem).length).toEqual(2);
   });
 });

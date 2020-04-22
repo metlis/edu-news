@@ -172,15 +172,49 @@ export default {
       fetchNews(catName)
         .then((data) => {
           this.news[catName] = data;
-          if (data.totalResults && data.totalResults > this.articlesPerPage) {
-            this.paginations[catName] = 1;
-          }
+          this.filterCatNews(catName);
+          this.createNewPaginationItem(catName);
         }).catch((err) => {
           this.news[catName] = { error: err };
         })
         .finally(() => {
           this.isFetching = false;
         });
+    },
+
+    filterCatNews(catName) {
+      if (!this.news[catName] || !this.news[catName].articles) return '';
+
+      const catNews = this.news[catName].articles;
+      const newsSortedByTitle = catNews.slice().sort(this.sortByTitle);
+      const newsTitles = newsSortedByTitle.map((item) => item.title);
+      const filteredCatNews = newsSortedByTitle
+        .filter((item, index) => newsTitles.lastIndexOf(item.title) === index);
+      const filteredCatNewsSortedByDate = filteredCatNews.slice().sort(this.sortByDate);
+      this.news[catName].articles = filteredCatNewsSortedByDate;
+
+      return filteredCatNewsSortedByDate;
+    },
+
+    sortByTitle(a, b) {
+      if (a.title < b.title) {
+        return -1;
+      }
+      if (a.title > b.title) {
+        return 1;
+      }
+      return 0;
+    },
+
+    sortByDate(a, b) {
+      return new Date(b.publishedAt) - new Date(a.publishedAt);
+    },
+
+    createNewPaginationItem(catName) {
+      const catNews = this.news[catName];
+      if (catNews.totalResults && catNews.totalResults > this.articlesPerPage) {
+        this.paginations[catName] = 1;
+      }
     },
 
     isNoNews(catName) {
@@ -203,7 +237,7 @@ export default {
 
     updateCatActivePage(catName) {
       this.paginations[catName] = this.activePageNum;
-      goTo(this.$refs.list);
+      goTo(this.$refs.list[0]);
     },
 
     switchTabPagination(catName) {
@@ -213,13 +247,15 @@ export default {
     },
 
     getListItems(catName) {
-      if (!this.news[catName]) return '';
+      if (!this.news[catName] || !this.news[catName].articles) return '';
+
       if (this.paginations[catName]) {
         const currentPageNum = this.paginations[catName];
         const startItem = (currentPageNum - 1) * this.articlesPerPage;
         const endItem = startItem + this.articlesPerPage;
         return this.news[catName].articles.slice(startItem, endItem);
       }
+
       return this.news[catName].articles;
     },
 
