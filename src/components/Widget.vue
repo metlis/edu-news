@@ -62,10 +62,8 @@
                     {{ article.source.name }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle  v-if="article.description">
+                    <i>{{ getPubDateStr(article) }}:</i>
                     {{ article.description }}
-                    <span>
-                      <strong>({{ getPubDateStr(article) }})</strong>
-                    </span>
                   </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -135,7 +133,7 @@
         class="text-center py-0"
         cols="12"
       >
-        Создано на основе <a href="https://newsapi.org" target="_blank">News Api</a>
+        Создано на базе <a href="https://newsapi.org" target="_blank">News Api</a>
       </v-col>
     </v-footer>
   </v-card>
