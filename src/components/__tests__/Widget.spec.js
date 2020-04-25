@@ -134,7 +134,7 @@ describe('Widget.vue', () => {
         return {
           news: {
             'Все новости': { articles: [{ title: 'test1', publishedAt: '' }] },
-            'Дошкольное образование': {
+            ВУЗы: {
               articles: [
                 { title: 'test1', publishedAt: '' },
                 { title: 'test1', publishedAt: '' },
@@ -146,7 +146,7 @@ describe('Widget.vue', () => {
       },
     });
     const secondList = wrapper.findAll(VList).at(1);
-    wrapper.vm.filterCatNews('Дошкольное образование');
+    wrapper.vm.filterCatNews('ВУЗы');
     await wrapper.vm.$nextTick();
     expect(secondList.findAll(VListItem).length).toEqual(2);
   });
