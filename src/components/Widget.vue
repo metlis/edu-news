@@ -153,6 +153,7 @@
 import goTo from 'vuetify/es5/services/goto';
 import fetchNews from '../api/api-call-method';
 import keywords from '../api/api-keywords';
+import utils from '../utils/utils';
 
 export default {
   name: 'Widget',
@@ -199,28 +200,14 @@ export default {
       if (!this.news[catName] || !this.news[catName].articles) return '';
 
       const catNews = this.news[catName].articles;
-      const newsSortedByTitle = catNews.slice().sort(this.sortByTitle);
+      const newsSortedByTitle = catNews.slice().sort(utils.sortByParam('title'));
       const newsTitles = newsSortedByTitle.map((item) => item.title);
       const filteredCatNews = newsSortedByTitle
         .filter((item, index) => newsTitles.lastIndexOf(item.title) === index);
-      const filteredCatNewsSortedByDate = filteredCatNews.slice().sort(this.sortByDate);
+      const filteredCatNewsSortedByDate = filteredCatNews.slice().sort(utils.sortByDate('publishedAt'));
       this.news[catName].articles = filteredCatNewsSortedByDate;
 
       return filteredCatNewsSortedByDate;
-    },
-
-    sortByTitle(a, b) {
-      if (a.title < b.title) {
-        return -1;
-      }
-      if (a.title > b.title) {
-        return 1;
-      }
-      return 0;
-    },
-
-    sortByDate(a, b) {
-      return new Date(b.publishedAt) - new Date(a.publishedAt);
     },
 
     createNewPaginationItem(catName) {
