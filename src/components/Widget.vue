@@ -173,12 +173,6 @@ export default {
   }),
 
   methods: {
-    switchTab(catName) {
-      this.fetchCatNews(catName);
-      this.switchTabPagination(catName);
-      this.searchInputIsVisible = false;
-    },
-
     fetchCatNews(catName) {
       if (this.news[catName]) return;
       this.isFetching = true;
@@ -210,6 +204,28 @@ export default {
       return filteredCatNewsSortedByDate;
     },
 
+    updateCatActivePage(catName) {
+      this.paginations[catName] = this.activePageNum;
+      goTo(this.$refs.list[0]);
+    },
+
+    getCatIndex(catName) {
+      const catNames = keywords.getCategoriesNames();
+      return catNames.indexOf(catName);
+    },
+
+    switchTab(catName) {
+      this.fetchCatNews(catName);
+      this.switchTabPagination(catName);
+      this.searchInputIsVisible = false;
+    },
+
+    switchTabPagination(catName) {
+      if (this.paginations[catName]) {
+        this.activePageNum = this.paginations[catName];
+      } else this.activePageNum = 1;
+    },
+
     createNewPaginationItem(catName) {
       const catNews = this.news[catName];
       if (catNews.totalResults && catNews.totalResults > this.articlesPerPage) {
@@ -217,33 +233,14 @@ export default {
       }
     },
 
-    isNoNews(catName) {
-      return this.news[catName] ? this.news[catName].totalResults === 0 : false;
+    getPaginationLength(catName) {
+      return this.news[catName] && this.news[catName].articles
+        ? Math.ceil(this.news[catName].articles.length / this.articlesPerPage) : 0;
     },
 
-    isError(catName) {
-      return !!(this.news[catName] && this.news[catName].error);
-    },
-
-    getPubDateStr(article) {
-      if (!article.publishedAt) return '';
-      try {
-        const date = new Date(article.publishedAt);
-        return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-      } catch (err) {
-        return '';
-      }
-    },
-
-    updateCatActivePage(catName) {
-      this.paginations[catName] = this.activePageNum;
-      goTo(this.$refs.list[0]);
-    },
-
-    switchTabPagination(catName) {
-      if (this.paginations[catName]) {
-        this.activePageNum = this.paginations[catName];
-      } else this.activePageNum = 1;
+    isPaginated(catName) {
+      if (!this.news[catName] || !this.news[catName].articles) return false;
+      return this.news[catName].articles.length > this.articlesPerPage;
     },
 
     getListItems(catName) {
@@ -259,14 +256,22 @@ export default {
       return this.news[catName].articles;
     },
 
-    getPaginationLength(catName) {
-      return this.news[catName] && this.news[catName].articles
-        ? Math.ceil(this.news[catName].articles.length / this.articlesPerPage) : 0;
+    getPubDateStr(article) {
+      if (!article.publishedAt) return '';
+      try {
+        const date = new Date(article.publishedAt);
+        return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+      } catch (err) {
+        return '';
+      }
     },
 
-    isPaginated(catName) {
-      if (!this.news[catName] || !this.news[catName].articles) return false;
-      return this.news[catName].articles.length > this.articlesPerPage;
+    isNoNews(catName) {
+      return this.news[catName] ? this.news[catName].totalResults === 0 : false;
+    },
+
+    isError(catName) {
+      return !!(this.news[catName] && this.news[catName].error);
     },
 
     applySearch() {
@@ -300,11 +305,6 @@ export default {
       ) this.searchInputIsVisible = false;
 
       else this.applySearch();
-    },
-
-    getCatIndex(catName) {
-      const catNames = keywords.getCategoriesNames();
-      return catNames.indexOf(catName);
     },
 
     removePrevSearchResults() {
