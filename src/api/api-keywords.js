@@ -14,6 +14,14 @@ const keywords = (function () {
     Репетиторство: ['репетитор', 'репетиторство'],
   };
 
+  function setCategory(catName, catValue) {
+    categories[catName] = catValue;
+  }
+
+  function getCategory(catName) {
+    return categories[catName] ? categories[catName] : false;
+  }
+
   function getCategoriesNames() {
     return Object.keys(categories);
   }
@@ -25,6 +33,8 @@ const keywords = (function () {
   }
 
   return {
+    setCategory,
+    getCategory,
     getCategoriesNames,
     getCategoryKeysStr,
   };

@@ -8,9 +8,19 @@
       color="teal lighten-2"
       dark
     >
-      <v-toolbar-title>Новости образования</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon>
+      <template v-if="!searchInputIsVisible">
+        <v-toolbar-title>Новости образования</v-toolbar-title>
+        <v-spacer></v-spacer>
+      </template>
+      <v-text-field
+        v-model="searchQuery"
+        v-if="searchInputIsVisible"
+        @change="handleSearchIconClick"
+      />
+      <v-btn
+        @click="handleSearchIconClick"
+        icon
+      >
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
     </v-toolbar>
@@ -155,12 +165,17 @@ export default {
     paginations: {},
     activePageNum: 1,
     articlesPerPage: 5,
+    searchQuery: '',
+    searchInputIsVisible: false,
+    searchCatName: 'Поиск',
+    allNewsCatName: 'Все новости',
   }),
 
   methods: {
     switchTab(catName) {
       this.fetchCatNews(catName);
       this.switchTabPagination(catName);
+      this.searchInputIsVisible = false;
     },
 
     fetchCatNews(catName) {
@@ -266,10 +281,53 @@ export default {
       if (!this.news[catName] || !this.news[catName].articles) return false;
       return this.news[catName].articles.length > this.articlesPerPage;
     },
+
+    applySearch() {
+      this.removePrevSearchResults();
+
+      keywords.setCategory(
+        this.searchCatName,
+        this.searchQuery.split(',').map(this.coverInParenthesis),
+      );
+
+      // updating the list of tab names with the search tab
+      this.tabs = keywords.getCategoriesNames();
+
+      // switching to search tab programmatically
+      this.activeTab = this.getCatIndex(this.searchCatName);
+      this.switchTab(this.searchCatName);
+    },
+
+    // for correct api work multi word search queries need to be covered in parenthesis
+    coverInParenthesis(item) {
+      const trimmed = item.trim();
+      if (trimmed.indexOf(' ') > -1) return `(${trimmed})`;
+      return trimmed;
+    },
+
+    handleSearchIconClick() {
+      if (!this.searchInputIsVisible) this.searchInputIsVisible = true;
+
+      else if (
+        this.searchInputIsVisible && this.searchQuery === ''
+      ) this.searchInputIsVisible = false;
+
+      else this.applySearch();
+    },
+
+    getCatIndex(catName) {
+      const catNames = keywords.getCategoriesNames();
+      return catNames.indexOf(catName);
+    },
+
+    removePrevSearchResults() {
+      if (this.news[this.searchCatName]) delete this.news[this.searchCatName];
+      if (this.paginations[this.searchCatName]) delete this.paginations[this.searchCatName];
+    },
   },
 
   created() {
-    this.fetchCatNews('Все новости');
+    this.fetchCatNews(this.allNewsCatName);
   },
 };
 </script>
