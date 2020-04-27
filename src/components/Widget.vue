@@ -40,7 +40,10 @@
       </v-tab>
     </v-tabs>
 
-    <v-tabs-items v-model="activeTab">
+    <v-tabs-items
+      v-model="activeTab"
+      ref="tabs"
+    >
       <v-tab-item
         v-for="tab in tabs"
         :key="tab"
@@ -51,7 +54,6 @@
             <!-- News list -->
             <v-list
               v-if="!isFetching && !isNoNews(tab) && !isError(tab)"
-              ref="list"
               three-line
             >
               <v-list-item
@@ -206,7 +208,7 @@ export default {
 
     updateCatActivePage(catName) {
       this.paginations[catName] = this.activePageNum;
-      goTo(this.$refs.list[0]);
+      goTo(this.$refs.tabs);
     },
 
     getCatIndex(catName) {
