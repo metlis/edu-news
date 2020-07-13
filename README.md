@@ -1,5 +1,7 @@
 # edu-news
 
+Widget with educational news in Russian
+
 ## Project setup
 ```
 npm install
